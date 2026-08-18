@@ -1,5 +1,7 @@
 # L2Presence
 
+[![Build Windows EXE](https://github.com/doubletr1ple/L2Pressence/actions/workflows/build.yml/badge.svg)](https://github.com/doubletr1ple/L2Pressence/actions/workflows/build.yml)
+
 A small Windows tray application that publishes Lineage II character activity to Discord Rich Presence.
 
 ## Features
