@@ -8,6 +8,8 @@
     <Nullable>enable</Nullable>
     <AssemblyName>L2Presence</AssemblyName>
     <RootNamespace>L2Presence</RootNamespace>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
@@ -16,6 +18,10 @@
 
   <ItemGroup>
     <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DiscordAssets\l2_epilogue.png" LogicalName="L2Presence.TrayIcon.png" />
   </ItemGroup>
 
 </Project>
