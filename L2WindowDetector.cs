@@ -6,6 +6,8 @@ internal sealed record L2WindowInfo(int ProcessId, string WindowTitle, string Ch
 
 internal sealed class L2WindowDetector
 {
+    private const string L2ViewportClass = "L2UnrealWWindowsViewportWindow";
+
     private readonly AppSettings _settings;
 
     public L2WindowDetector(AppSettings settings)
@@ -23,7 +25,7 @@ internal sealed class L2WindowDetector
             {
                 try
                 {
-                    var title = process.MainWindowTitle?.Trim();
+                    var title = FindGameWindowTitle(process);
                     if (string.IsNullOrWhiteSpace(title))
                         continue;
 
@@ -47,6 +49,27 @@ internal sealed class L2WindowDetector
         return result
             .OrderBy(x => x.ProcessId)
             .ToList();
+    }
+
+    private static string FindGameWindowTitle(Process process)
+    {
+        var windows = NativeMethods.EnumerateWindowsForProcess(process.Id, includeChildren: false);
+        var viewport = windows.FirstOrDefault(window =>
+            window.IsVisible &&
+            string.Equals(window.ClassName, L2ViewportClass, StringComparison.Ordinal) &&
+            !string.IsNullOrWhiteSpace(window.Title));
+
+        if (viewport is not null)
+            return viewport.Title.Trim();
+
+        var mainWindowTitle = process.MainWindowTitle?.Trim();
+        if (!string.IsNullOrWhiteSpace(mainWindowTitle))
+            return mainWindowTitle;
+
+        return windows
+            .Where(window => window.IsVisible && !string.IsNullOrWhiteSpace(window.Title))
+            .Select(window => window.Title.Trim())
+            .FirstOrDefault() ?? string.Empty;
     }
 
     private string ParseCharacterName(string title)

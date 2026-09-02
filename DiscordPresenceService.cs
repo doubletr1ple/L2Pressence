@@ -10,6 +10,8 @@ internal sealed class DiscordPresenceService : IDisposable
     private readonly string _largeImageText;
     private string? _currentSignature;
     private DateTime? _sessionStartUtc;
+    private RichPresence? _pendingPresence;
+    private bool _isReady;
     private bool _presenceIsSet;
 
     public DiscordPresenceService(AppSettings settings)
@@ -18,6 +20,21 @@ internal sealed class DiscordPresenceService : IDisposable
         _largeImageKey = settings.LargeImageKey;
         _largeImageText = settings.LargeImageText;
         _client = new DiscordRpcClient(settings.DiscordApplicationId);
+        _client.OnReady += (_, _) =>
+        {
+            _isReady = true;
+            PublishPendingPresence();
+        };
+        _client.OnClose += (_, _) =>
+        {
+            _isReady = false;
+            _presenceIsSet = false;
+        };
+        _client.OnConnectionFailed += (_, _) =>
+        {
+            _isReady = false;
+            _presenceIsSet = false;
+        };
     }
 
     public void Initialize()
@@ -87,17 +104,29 @@ internal sealed class DiscordPresenceService : IDisposable
             };
         }
 
-        _client.SetPresence(presence);
+        _pendingPresence = presence;
+        PublishPendingPresence();
+    }
+
+    private void PublishPendingPresence()
+    {
+        if (!_isReady || _pendingPresence is null)
+            return;
+
+        _client.SetPresence(_pendingPresence);
         _presenceIsSet = true;
     }
 
     public void Clear()
     {
-        if (!_presenceIsSet)
+        if (!_presenceIsSet && _pendingPresence is null)
             return;
 
-        _client.ClearPresence();
+        if (_isReady && _presenceIsSet)
+            _client.ClearPresence();
+
         _presenceIsSet = false;
+        _pendingPresence = null;
         _currentSignature = null;
         _sessionStartUtc = null;
     }

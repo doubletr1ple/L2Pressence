@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 using L2Presence.AltSnapModule;
 using L2Presence.AltSnapModule.Interop;
@@ -52,7 +53,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _borderlessToggleItem = new ToolStripMenuItem("Enable borderless hotkey")
         {
             CheckOnClick = true,
-            Checked = false
+            Checked = true
         };
         _borderlessToggleItem.Click += (_, _) => ToggleBorderlessHotkey();
 
@@ -81,6 +82,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         exitItem.Click += (_, _) => ExitThread();
 
         var menu = new ContextMenuStrip();
+        menu.Items.Add(new ToolStripMenuItem(GetVersionLabel()) { Enabled = false });
         menu.Items.Add(_statusItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(borderlessMenu);
@@ -106,6 +108,19 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         RefreshPresence();
         UpdateShortcutLabel();
+        ToggleBorderlessHotkey();
+    }
+
+    private static string GetVersionLabel()
+    {
+        var informationalVersion = typeof(TrayApplicationContext).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+        var version = informationalVersion?.Split('+', 2)[0]
+            ?? typeof(TrayApplicationContext).Assembly.GetName().Version?.ToString(3)
+            ?? "unknown";
+
+        return $"L2Presence v{version}";
     }
 
     private void ToggleBorderlessHotkey()

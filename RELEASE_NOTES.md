@@ -1,12 +1,14 @@
-# L2Presence v1.0.0
+# L2Presence v1.0.1
 
-The first stable L2Presence release combines the existing Discord Rich Presence integration with an optional, per-window Borderless toggle tested with Lineage II Interlude.
+This maintenance release fixes Discord Rich Presence detection while Lineage II is the active window and enables the Borderless hotkey by default.
 
 ## Highlights
 
-- Detects one or multiple `l2.exe` clients and publishes their character names to Discord.
-- Keeps Discord Rich Presence as the default and only always-on feature.
-- Adds an optional Borderless hotkey, disabled at startup.
+- Detects the real `L2UnrealWWindowsViewportWindow` for every `l2.exe` client, ignoring Discord's overlay window.
+- Keeps character detection and custom Discord Rich Presence active while Lineage II is in the foreground.
+- Waits for the Discord RPC connection to be ready before publishing and restores Presence after reconnecting.
+- Shows the running L2Presence version at the top of the tray menu.
+- Enables the configurable Borderless hotkey at startup.
 - Uses `Shift + Alt + Middle Mouse` as the default configurable shortcut.
 - Toggles only the root window under the cursor.
 - Removes the complete Windows frame and restores the exact original styles.

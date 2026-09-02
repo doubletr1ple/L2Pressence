@@ -21,7 +21,7 @@ The release is a self-contained Windows x64 executable. No installer or separate
 
 - Runs quietly in the Windows notification area.
 - Detects every running `l2.exe` client.
-- Reads character names from the main window titles.
+- Reads character names from the actual Lineage II viewport windows, ignoring overlays.
 - Displays one or multiple characters in a single Discord activity.
 - Shows the configured server name and current session duration.
 - Clears Discord activity after the final Lineage II client closes.
@@ -52,7 +52,7 @@ No configuration file is required for Discord Rich Presence. The Discord applica
 
 ## Discord Rich Presence
 
-L2Presence checks for `l2.exe` every two seconds. The application uses each main window title as a character name and publishes:
+L2Presence checks for `l2.exe` every two seconds. It identifies the visible `L2UnrealWWindowsViewportWindow` for each client so Discord and other overlays cannot replace the character-title source. The application publishes:
 
 - `Character: Name` for one detected client;
 - `Characters: Name1, Name2` for multiple clients;
@@ -63,11 +63,11 @@ When every Lineage II client closes, the activity is removed and the timer is re
 
 ## Borderless Toggle
 
-Borderless control is disabled when L2Presence starts. To enable it:
+Borderless control and its global hotkey are enabled when L2Presence starts. To use it:
 
 1. Right-click the tray icon.
 2. Open `Borderless`.
-3. Select `Enable borderless hotkey`.
+3. Confirm `Borderless hotkey: on` is displayed.
 4. Point at the target window and press `Shift + Alt + Middle Mouse`.
 
 The default shortcut affects only the root window under the cursor. It removes the title bar, resize frame, and Windows edge styles. Press it again to restore that window's exact original styles.
@@ -82,6 +82,7 @@ The tray menu also provides:
 
 | Command | Behavior |
 | --- | --- |
+| `L2Presence vX.Y.Z` | Shows the version of the currently running build. |
 | `Enable/Disable borderless hotkey` | Installs or removes the global input hooks. |
 | `Configure hotkey...` | Changes the borderless shortcut. |
 | `Toggle borderless for active window` | Toggles the window that was active before the tray menu opened. |
@@ -175,6 +176,12 @@ The `AltSnapModule` directory name is retained for source continuity; it contain
 - Check that the Lineage II window title contains the expected character name.
 - Restart L2Presence after restarting Discord.
 - Run L2Presence and Lineage II at the same Windows integrity level.
+
+### Discord shows its built-in Lineage II activity
+
+Discord's automatic game detection is independent from custom Rich Presence and can take display priority while Lineage II is in the foreground. Open `User Settings > Activity Settings > Registered Games` in Discord and disable activity sharing for Lineage II only. Keep the global activity-sharing setting enabled so L2Presence can continue publishing its custom Rich Presence.
+
+L2Presence reads the dedicated Lineage II viewport instead of relying on `Process.MainWindowHandle`, which can point to Discord's overlay while the game is active.
 
 ### The borderless shortcut does nothing
 
